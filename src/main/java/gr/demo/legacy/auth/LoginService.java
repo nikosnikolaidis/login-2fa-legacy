@@ -2,31 +2,50 @@ package gr.demo.legacy.auth;
 
 /**
  * Login service class.
- * Handles login with username and password.
- * TODO: add the two factor code
+ * Handles login with username, password and two factor code.
  */
 public class LoginService {
 
     // user store
     private UserStore store = new UserStore();
-    // failed attempts counter
+    // totp service
+    private TotpService totp = new TotpService();
+    // failed attempts counter (global, not per user)
     private int attempts = 0;
 
     // The login method. Returns a message.
-    public String login(String username, String password) {
+    public String login(String username, String password, String code) {
         // print the credentials for debugging
-        System.out.println("Login attempt: " + username + " / " + password);
+        System.out.println("Login attempt: " + username + " / " + password + " / " + code);
         // check username
         if (username != null) {
             // check password
             if (password != null) {
                 // check if user exists
                 if (store.exists(username)) {
-                    // compare the passwords
-                    if (password.equals(store.getPassword(username))) {
-                        // reset attempts
-                        attempts = 0;
-                        return "OK";
+                    // compute hash
+                    String hash = store.hash(password);
+                    // compare the hashes
+                    if (hash.equals(store.getHash(username))) {
+                        // check if we need the code
+                        if (code != null) {
+                            // check the code
+                            if (totp.verify(AuthConfig.DEFAULT_SECRET, code)) {
+                                // reset attempts
+                                attempts = 0;
+                                // success
+                                System.out.println("Login OK for " + username);
+                                return "OK";
+                            } else {
+                                // wrong code
+                                attempts = attempts + 1;
+                                System.out.println("Wrong code for " + username);
+                                return "WRONG_CODE";
+                            }
+                        } else {
+                            // code required
+                            return "CODE_REQUIRED";
+                        }
                     } else {
                         // wrong password
                         attempts = attempts + 1;

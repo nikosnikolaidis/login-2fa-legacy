@@ -19,8 +19,16 @@ public class Main {
         // ask for the password
         System.out.print("Password: ");
         String p = sc.nextLine();
-        // login
-        String r = service.login(u, p);
+        // first step: without code
+        String r = service.login(u, p, null);
+        // check the result
+        if (r.equals("CODE_REQUIRED")) {
+            // ask for the code
+            System.out.print("2FA code: ");
+            String c = sc.nextLine();
+            // second step
+            r = service.login(u, p, c);
+        }
         // print the result
         System.out.println("Result: " + r);
     }
