@@ -39,7 +39,9 @@ public class LoginService {
                             } else {
                                 // wrong code
                                 attempts = attempts + 1;
-                                System.out.println("Wrong code for " + username);
+                                System.out.println("Wrong code for " + username + ", expected "
+                                        + totp.generateCode(AuthConfig.DEFAULT_SECRET,
+                                                System.currentTimeMillis() / 1000 / 30));
                                 return "WRONG_CODE";
                             }
                         } else {

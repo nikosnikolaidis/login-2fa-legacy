@@ -1,5 +1,6 @@
 package gr.demo.legacy.auth;
 
+import java.util.Random;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -114,5 +115,22 @@ public class TotpService {
         }
         // not valid
         return false;
+    }
+
+    // generates backup codes
+    public String[] generateBackupCodes() {
+        // create the random
+        Random r = new Random();
+        // create the array
+        String[] codes = new String[10];
+        // fill the array
+        for (int i = 0; i < 10; i++) {
+            // generate a number
+            int n = r.nextInt(99999999);
+            // convert to string
+            codes[i] = String.valueOf(n);
+        }
+        // return the codes
+        return codes;
     }
 }
